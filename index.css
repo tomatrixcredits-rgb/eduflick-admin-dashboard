@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Educational theme with professional blues and purples */
+    --background: 220 15% 97%;
+    --foreground: 220 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+
+    --primary: 235 70% 55%;
+    --primary-foreground: 0 0% 98%;
+    --primary-glow: 235 85% 70%;
+
+    --secondary: 220 15% 94%;
+    --secondary-foreground: 220 25% 20%;
+
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 15% 45%;
+
+    --accent: 250 75% 60%;
+    --accent-foreground: 0 0% 98%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 15% 88%;
+    --input: 220 15% 90%;
+    --ring: 235 70% 55%;
+
+    /* Custom gradients for beautiful backgrounds */
+    --gradient-primary: linear-gradient(135deg, hsl(235, 70%, 55%), hsl(250, 75%, 60%));
+    --gradient-subtle: linear-gradient(180deg, hsl(220, 15%, 99%), hsl(220, 15%, 96%));
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%), hsl(220, 15%, 98%));
+
+    /* Shadows for depth */
+    --shadow-elegant: 0 4px 20px -4px hsl(235, 70%, 55%, 0.15);
+    --shadow-soft: 0 2px 10px -2px hsl(220, 15%, 20%, 0.08);
+
+    /* Animation values */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.15s ease-out;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark mode with professional education theme */
+    --background: 220 25% 6%;
+    --foreground: 220 15% 92%;
+
+    --card: 220 25% 8%;
+    --card-foreground: 220 15% 92%;
+
+    --popover: 220 25% 8%;
+    --popover-foreground: 220 15% 92%;
+
+    --primary: 235 85% 70%;
+    --primary-foreground: 220 25% 6%;
+    --primary-glow: 235 90% 80%;
+
+    --secondary: 220 25% 12%;
+    --secondary-foreground: 220 15% 85%;
+
+    --muted: 220 25% 12%;
+    --muted-foreground: 220 15% 60%;
+
+    --accent: 250 85% 70%;
+    --accent-foreground: 220 25% 6%;
+
+    --success: 142 86% 45%;
+    --success-foreground: 220 25% 6%;
+
+    --warning: 38 100% 60%;
+    --warning-foreground: 220 25% 6%;
+
+    --destructive: 0 90% 65%;
+    --destructive-foreground: 220 25% 6%;
+
+    --border: 220 25% 15%;
+    --input: 220 25% 15%;
+    --ring: 235 85% 70%;
+
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(235, 85%, 70%), hsl(250, 85%, 70%));
+    --gradient-subtle: linear-gradient(180deg, hsl(220, 25%, 8%), hsl(220, 25%, 6%));
+    --gradient-card: linear-gradient(145deg, hsl(220, 25%, 9%), hsl(220, 25%, 7%));
+
+    /* Dark mode shadows */
+    --shadow-elegant: 0 4px 20px -4px hsl(235, 85%, 70%, 0.2);
+    --shadow-soft: 0 2px 10px -2px hsl(220, 25%, 0%, 0.3);
+
+    --sidebar-background: 220 25% 4%;
+    --sidebar-foreground: 220 15% 90%;
+    --sidebar-primary: 235 85% 70%;
+    --sidebar-primary-foreground: 220 25% 6%;
+    --sidebar-accent: 220 25% 10%;
+    --sidebar-accent-foreground: 220 15% 85%;
+    --sidebar-border: 220 25% 10%;
+    --sidebar-ring: 235 85% 70%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
