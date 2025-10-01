@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Send, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Student } from "../types/student";
+import { getMessagesByStudentId, sendMessage, subscribeToMessages } from "../services/messageService";
 import { mockMessages } from "../data/mockData";
 
 interface ChatInterfaceProps {
@@ -14,20 +15,76 @@ interface ChatInterfaceProps {
 export const ChatInterface = ({ student }: ChatInterfaceProps) => {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState(mockMessages.filter(msg => msg.studentId === student.id));
+  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
-    
-    const message = {
-      id: Date.now().toString(),
-      studentId: student.id,
-      sender: 'admin' as const,
-      content: newMessage,
-      timestamp: new Date().toISOString(),
+  useEffect(() => {
+    loadMessages();
+    const unsubscribe = subscribeToMessages(student.id, (updatedMessages) => {
+      setMessages(updatedMessages);
+    });
+
+    return () => {
+      unsubscribe();
     };
-    
-    setMessages([...messages, message]);
-    setNewMessage("");
+  }, [student.id]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const loadMessages = async () => {
+    try {
+      setLoading(true);
+      const data = await getMessagesByStudentId(student.id);
+      if (data.length > 0) {
+        setMessages(data);
+      } else {
+        setMessages(mockMessages.filter(msg => msg.studentId === student.id));
+      }
+    } catch (err) {
+      console.error('Error loading messages:', err);
+      setMessages(mockMessages.filter(msg => msg.studentId === student.id));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || sending) return;
+
+    try {
+      setSending(true);
+      const message = {
+        studentId: student.id,
+        sender: 'admin' as const,
+        content: newMessage,
+        timestamp: new Date().toISOString(),
+        isAdminNote: false,
+      };
+
+      await sendMessage(message);
+      setNewMessage("");
+    } catch (err) {
+      console.error('Error sending message:', err);
+      const tempMessage = {
+        id: Date.now().toString(),
+        studentId: student.id,
+        sender: 'admin' as const,
+        content: newMessage,
+        timestamp: new Date().toISOString(),
+        isAdminNote: false,
+      };
+      setMessages([...messages, tempMessage]);
+      setNewMessage("");
+    } finally {
+      setSending(false);
+    }
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -58,7 +115,12 @@ export const ChatInterface = ({ student }: ChatInterfaceProps) => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
+        {loading && (
+          <div className="flex justify-center items-center h-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        )}
+        {!loading && messages.map((message) => (
           <div
             key={message.id}
             className={`flex gap-3 ${message.sender === 'admin' ? 'justify-end' : 'justify-start'}`}
@@ -108,6 +170,7 @@ export const ChatInterface = ({ student }: ChatInterfaceProps) => {
             )}
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       <div className="p-4 border-t bg-gradient-to-r from-muted/30 to-muted/10">
@@ -116,15 +179,21 @@ export const ChatInterface = ({ student }: ChatInterfaceProps) => {
             placeholder="Type your message or admin note..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            onKeyPress={(e) => e.key === 'Enter' && !sending && handleSendMessage()}
             className="flex-1"
+            disabled={sending}
           />
-          <Button 
-            onClick={handleSendMessage} 
+          <Button
+            onClick={handleSendMessage}
             size="sm"
             className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
+            disabled={sending || !newMessage.trim()}
           >
-            <Send className="h-4 w-4" />
+            {sending ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>

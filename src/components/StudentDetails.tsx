@@ -1,14 +1,43 @@
+import { useState } from "react";
 import { Calendar, Award, CreditCard, Users, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Student } from "../types/student";
+import { updateStudent } from "../services/studentService";
 
 interface StudentDetailsProps {
   student: Student;
+  onUpdate?: () => void;
 }
 
-export const StudentDetails = ({ student }: StudentDetailsProps) => {
+export const StudentDetails = ({ student, onUpdate }: StudentDetailsProps) => {
+  const [updating, setUpdating] = useState(false);
+
+  const handleToggleMentor = async () => {
+    try {
+      setUpdating(true);
+      await updateStudent(student.id, { needsMentor: !student.needsMentor });
+      onUpdate?.();
+    } catch (err) {
+      console.error('Error updating mentor status:', err);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleUpdatePaymentStatus = async (status: 'paid' | 'pending' | 'overdue') => {
+    try {
+      setUpdating(true);
+      await updateStudent(student.id, { paymentStatus: status });
+      onUpdate?.();
+    } catch (err) {
+      console.error('Error updating payment status:', err);
+    } finally {
+      setUpdating(false);
+    }
+  };
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
@@ -88,22 +117,31 @@ export const StudentDetails = ({ student }: StudentDetailsProps) => {
               Support Status
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <Badge 
-              variant="outline" 
-              className={student.needsMentor 
-                ? 'bg-warning/10 text-warning border-warning/20' 
+          <CardContent className="space-y-3">
+            <Badge
+              variant="outline"
+              className={student.needsMentor
+                ? 'bg-warning/10 text-warning border-warning/20'
                 : 'bg-success/10 text-success border-success/20'
               }
             >
               {student.needsMentor ? 'Needs Mentor Support' : 'On Track'}
             </Badge>
-            <p className="text-xs text-muted-foreground mt-2">
-              {student.needsMentor 
+            <p className="text-xs text-muted-foreground">
+              {student.needsMentor
                 ? 'Student may benefit from additional guidance'
                 : 'Student is progressing well independently'
               }
             </p>
+            <Button
+              onClick={handleToggleMentor}
+              variant="outline"
+              size="sm"
+              className="w-full"
+              disabled={updating}
+            >
+              {updating ? 'Updating...' : 'Toggle Mentor Status'}
+            </Button>
           </CardContent>
         </Card>
 
@@ -118,17 +156,47 @@ export const StudentDetails = ({ student }: StudentDetailsProps) => {
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm">Payment Status</span>
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className={getPaymentStatusColor(student.paymentStatus)}
               >
                 {student.paymentStatus.charAt(0).toUpperCase() + student.paymentStatus.slice(1)}
               </Badge>
             </div>
-            
+
             <div className="flex justify-between items-center text-sm">
               <span className="text-muted-foreground">Enrolled</span>
               <span>{new Date(student.enrollmentDate).toLocaleDateString()}</span>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={() => handleUpdatePaymentStatus('paid')}
+                variant={student.paymentStatus === 'paid' ? 'default' : 'outline'}
+                size="sm"
+                className="flex-1"
+                disabled={updating}
+              >
+                Paid
+              </Button>
+              <Button
+                onClick={() => handleUpdatePaymentStatus('pending')}
+                variant={student.paymentStatus === 'pending' ? 'default' : 'outline'}
+                size="sm"
+                className="flex-1"
+                disabled={updating}
+              >
+                Pending
+              </Button>
+              <Button
+                onClick={() => handleUpdatePaymentStatus('overdue')}
+                variant={student.paymentStatus === 'overdue' ? 'destructive' : 'outline'}
+                size="sm"
+                className="flex-1"
+                disabled={updating}
+              >
+                Overdue
+              </Button>
             </div>
           </CardContent>
         </Card>

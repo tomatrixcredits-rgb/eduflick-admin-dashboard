@@ -1,4 +1,4 @@
-mport { StudentDashboard } from "@/components/StudentDashboard";
+import { StudentDashboard } from "@/components/StudentDashboard";
 
 const Index = () => {
   return <StudentDashboard />;
